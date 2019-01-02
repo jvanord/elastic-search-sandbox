@@ -59,7 +59,7 @@ namespace ElasticSearchSandbox
 		public bool TimedOut { get; set; }
 
 		[JsonProperty("hits")]
-		public ElasticSearchHitsResult Hits { get; private set; }
+		public ElasticSearchHitsResult Results { get; private set; }
 
 		public static ElasticSearchResponse Parse(string jsonResponseBody)
 		{
@@ -90,17 +90,17 @@ namespace ElasticSearchSandbox
 		public string Type { get; set; }
 
 		[JsonProperty("_score")]
-		public int Score { get; set; }
+		public decimal Score { get; set; }
 
 		[JsonProperty("_source")]
-		public string RawSource { get; set; }
+		public object RawSource { get; set; }
 
 		public T ParseSource<T>()
 		{
-			if (string.IsNullOrWhiteSpace(RawSource)) return default(T);
+			if (string.IsNullOrWhiteSpace(RawSource.ToString())) return default(T);
 			try
 			{
-				return JsonConvert.DeserializeObject<T>(RawSource);
+				return JsonConvert.DeserializeObject<T>(RawSource.ToString());
 			}
 			catch
 			{

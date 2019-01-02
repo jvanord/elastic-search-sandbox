@@ -18,23 +18,34 @@ namespace ElasticSearchSandbox
 				var nestClient = new ElasticClient(ElasticSearchConnectionSettings.LocalSimple.GetNestConfiguration());
 
 				var mlesClient = new ElasticSearchClient("http://localhost:9200/companydatabase/_search");
+				var searchResponse = await mlesClient.Search();
+				Console.WriteLine("ML ES Client Search Complete");
+				Console.WriteLine($"{searchResponse.Results.Total} Total Hits");
+				Console.WriteLine($"{searchResponse.Results.Hits.Count} Hits This Page");
+				//var firstMatch = searchResponse.Results.Hits.FirstOrDefault();
+				foreach(var hit in searchResponse.Results.Hits)
+				{
+					var firstPoco = hit.ParseSource<PersonPoco>();
+					if (firstPoco == null)
+						Console.WriteLine("No Source Result Available");
+					else
+						Console.WriteLine($"First Result {firstPoco.FirstName} {firstPoco.LastName}, {firstPoco.Designation} ({firstPoco.Age}yo {firstPoco.Gender}) Started {firstPoco.DateOfJoining}");
+				}
 
-				return;
+				//var esTest = await esClient.PingAsync<StringResponse>();
+				//var nestTest = await nestClient.PingAsync();
 
-				var esTest = await esClient.PingAsync<StringResponse>();
-				var nestTest = await nestClient.PingAsync();
+				//var indices = await GetIndices(nestClient);
+				//ShowResults(indices);
 
-				var indices = await GetIndices(nestClient);
-				ShowResults(indices);
+				//var repos = await GetRepositories(nestClient);
+				//ShowResults(repos);
 
-				var repos = await GetRepositories(nestClient);
-				ShowResults(repos);
+				//var master = await GetMaster(nestClient);
+				//ShowResults(master);
 
-				var master = await GetMaster(nestClient);
-				ShowResults(master);
-
-				var aliases = await GetAliases(nestClient);
-				ShowResults(aliases);
+				//var aliases = await GetAliases(nestClient);
+				//ShowResults(aliases);
 			}
 			catch (Exception ex)
 			{
@@ -158,7 +169,7 @@ namespace ElasticSearchSandbox
 		public string LastName { get; set; }
 		public string Designation { get; set; }
 		public decimal? Salary { get; set; }
-		public DateTime? LastDateOfJoiningName { get; set; }
+		public DateTime? DateOfJoining { get; set; }
 		public string Address { get; set; }
 		public string Gender { get; set; }
 		public int? Age { get; set; }
