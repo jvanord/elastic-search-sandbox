@@ -19,11 +19,11 @@ namespace ElasticSearchSandbox
 				Console.WriteLine($"{searchResponse.Results.Hits.Count} Hits This Page");
 				foreach(var hit in searchResponse.Results.Hits)
 				{
-					var firstPoco = hit.ParseSource<PersonPoco>();
-					if (firstPoco == null)
+					var poco = hit.ParseSource<PersonPoco>();
+					if (poco == null)
 						Console.WriteLine("No Source Result Available");
 					else
-						Console.WriteLine($"First Result {firstPoco.FirstName} {firstPoco.LastName}, {firstPoco.Designation} ({firstPoco.Age}yo {firstPoco.Gender}) Started {firstPoco.DateOfJoining}");
+						Console.WriteLine($"First Result {poco.FirstName} {poco.LastName}, {poco.Designation} ({poco.Age}yo {poco.Gender}) Started {poco.DateOfJoining:d}");
 				}
 				var scrollResponse = await mlesClient.Scroll(searchResponse);
 				Console.WriteLine("ML ES Client Scroll Complete");
@@ -31,12 +31,27 @@ namespace ElasticSearchSandbox
 				Console.WriteLine($"{scrollResponse.Results.Hits.Count} Hits This Page");
 				foreach(var hit in scrollResponse.Results.Hits)
 				{
-					var firstPoco = hit.ParseSource<PersonPoco>();
-					if (firstPoco == null)
+					var poco = hit.ParseSource<PersonPoco>();
+					if (poco == null)
 						Console.WriteLine("No Source Result Available");
 					else
-						Console.WriteLine($"First Result {firstPoco.FirstName} {firstPoco.LastName}, {firstPoco.Designation} ({firstPoco.Age}yo {firstPoco.Gender}) Started {firstPoco.DateOfJoining}");
+						Console.WriteLine($"First Result {poco.FirstName} {poco.LastName}, {poco.Designation} ({poco.Age}yo {poco.Gender}) Started {poco.DateOfJoining:d}");
 				}
+				Console.WriteLine("Ready for Deep Search - This could take a while.");
+				Console.WriteLine("Press any key to begin.");
+				Console.ReadKey();
+				Console.WriteLine("Searching...");
+				var deepSearchResult = await mlesClient.DeepSearch();
+				Console.WriteLine("ML ES Client Deep Search Complete");
+				foreach(var hit in deepSearchResult)
+				{
+					var poco = hit.ParseSource<PersonPoco>();
+					if (poco == null)
+						Console.WriteLine("No Source Result Available");
+					else
+						Console.WriteLine($"First Result {poco.FirstName} {poco.LastName}, {poco.Designation} ({poco.Age}yo {poco.Gender}) Started {poco.DateOfJoining:d}");
+				}
+				Console.WriteLine($"{deepSearchResult.Count} Deep Search Results");
 			}
 			catch (Exception ex)
 			{
