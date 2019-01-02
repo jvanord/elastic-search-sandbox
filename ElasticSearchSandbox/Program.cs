@@ -13,12 +13,23 @@ namespace ElasticSearchSandbox
 			try
 			{
 				var mlesClient = new ElasticSearchClient("http://localhost:9200/companydatabase/_search");
-				var searchResponse = await mlesClient.Search();
+				var searchResponse = await mlesClient.SearchWithScroll();
 				Console.WriteLine("ML ES Client Search Complete");
 				Console.WriteLine($"{searchResponse.Results.Total} Total Hits");
 				Console.WriteLine($"{searchResponse.Results.Hits.Count} Hits This Page");
-				//var firstMatch = searchResponse.Results.Hits.FirstOrDefault();
 				foreach(var hit in searchResponse.Results.Hits)
+				{
+					var firstPoco = hit.ParseSource<PersonPoco>();
+					if (firstPoco == null)
+						Console.WriteLine("No Source Result Available");
+					else
+						Console.WriteLine($"First Result {firstPoco.FirstName} {firstPoco.LastName}, {firstPoco.Designation} ({firstPoco.Age}yo {firstPoco.Gender}) Started {firstPoco.DateOfJoining}");
+				}
+				var scrollResponse = await mlesClient.Scroll(searchResponse);
+				Console.WriteLine("ML ES Client Scroll Complete");
+				Console.WriteLine($"{scrollResponse.Results.Total} Total Hits");
+				Console.WriteLine($"{scrollResponse.Results.Hits.Count} Hits This Page");
+				foreach(var hit in scrollResponse.Results.Hits)
 				{
 					var firstPoco = hit.ParseSource<PersonPoco>();
 					if (firstPoco == null)
